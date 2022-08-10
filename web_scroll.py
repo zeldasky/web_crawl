@@ -1,3 +1,4 @@
+from unittest.main import MAIN_EXAMPLES
 import slack_notice as sl
 import requests
 import cfscrape
@@ -13,27 +14,32 @@ time_gap = 2
 
 subscribe = ['FOMC', 'GDP', 'CPI', 'PPI']
 
+main_text = ''
+
 class ama_event():
 	def __init__(self):
 		self.run()
 
-	def send_message(self, title, before='', now=''):
+	def add_message(self, title, before='', now=''):
+		global main_text
 		datetime_result = datetime.strptime("2022년"+date+' '+time, time_format)
 		current_time = datetime.now()
 		gap = datetime_result-current_time
-		korea_time = datetime_result + timedelta(hours=13)
-		text_date = korea_time.strftime("%m/%d %H:%M")
+		korea_time = datetime_result + timedelta(hours=12)
+		text_date = korea_time.astimezone().strftime("%m/%d %H:%M")
+		#text_date = datetime_result.astimezone().strftime("%m/%d %H:%M")
 		if gap.days <= time_gap:
 			if before == '':
 				text = str(text_date)+' (한국시간)'+'\n'+title+'\n'
 			else:
 				text = str(text_date)+' (한국시간)'+'\n'+title+'\n'+'예상: '+before+'\n'+'이전: '+now
-			print(text)
-			'''
-			attach_dict = {'text' : text}
-			attach_list=[attach_dict]
-			sl.notice_message("notice_economy", attach_list)
-			'''
+				main_text = main_text + '\n' + text + '\n'
+
+	def send_message(self):
+		global main_text
+		attach_dict = {'text' : main_text}
+		attach_list = [attach_dict]
+		sl.notice_message("notice_economy", attach_list)
 
 	def run(self):
 		global date
@@ -49,11 +55,10 @@ class ama_event():
 
 		html_tag = re.compile('<.*?>')
 		text = re.sub(html_tag,"", table)
-
-		raw_data = text.split(',')
+		a = text.replace('식품,','식품', 100)
+		raw_data = a.split(',')
 
 		data = []
-		new_data = []
 
 		for i in raw_data:
 			topic = i.split('\n')
@@ -73,9 +78,10 @@ class ama_event():
 							if len(temp) == 8:
 								before = temp[5]
 								now = temp[6]
-								self.send_message(title, before, now)
+								self.add_message(title, before, now)
 							else:
-								self.send_message(title)
+								self.add_message(title)
+		self.send_message()
 
 if __name__ == '__main__':
 	a = ama_event()
