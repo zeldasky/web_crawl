@@ -39,7 +39,7 @@ class ama_event():
 		global main_text
 		attach_dict = {'text' : main_text}
 		attach_list = [attach_dict]
-		sl.notice_message("notice_economy", attach_list)
+		#sl.notice_message("notice_economy", attach_list)
 
 	def run(self):
 		global date
