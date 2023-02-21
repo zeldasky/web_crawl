@@ -2,7 +2,6 @@ import requests
 import json
 
 Token = 'xoxb-3823534486833-3877062023155-IuLx9c1xl3XMC45KgWa6aLNg'
-Token = 'xoxb-3823534486833-3877062023155-IuLx9c1xl3XMC45KgWa6aLNg'
 
 def notice_message(channel, attachments):
     attachments = json.dumps(attachments)
